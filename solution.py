@@ -27,6 +27,40 @@ class Book(object):
         return f"Book {self.id}"
 
 
+def solve_3(books, libraries, days):
+    output = []
+    books_already_done = []
+    # Sort libraries by their score
+    for library in sorted(libraries, reverse=True, key=lambda l: l.score):
+        books_by_score = [book for book in sorted(
+            library.books, key=lambda b: b.score) if book not in books_already_done]
+        if books_by_score:
+            output.append([library])
+            output[-1].extend(reversed(books_by_score))
+            books_already_done.extend(books_by_score)
+
+    return output
+
+
+def solve_2(books, libraries, days):
+    output = []
+    available_libs = list(libraries)
+    books_already_done = []
+    import random
+    for i in range(len(libraries)):
+        rand_index = random.randrange(len(available_libs))
+        rand_lib = available_libs[rand_index]
+        del available_libs[rand_index]
+        books_by_score = [book for book in sorted(
+            rand_lib.books, key=lambda b: b.score) if book not in books_already_done]
+        if books_by_score:
+            output.append([rand_lib])
+            output[-1].extend(reversed(books_by_score))
+            books_already_done.extend(books_by_score)
+
+    return output
+
+
 def solve(books, libraries, days):
     looking_for_laziest_library = True
     # A list of lists.
@@ -56,7 +90,7 @@ def solve(books, libraries, days):
             output[-1].extend(reversed(books_by_score))
             processed_lib_ids.append(laziest_library.id)
         else:
-            sweatiest_library = Library(-1, 0, 10001, 0)
+            sweatiest_library = Library(-1, 0, 100001, 0)
             for libr in libraries:
                 if libr.id not in processed_lib_ids:
                     if libr.sign_up_time < sweatiest_library.sign_up_time:
@@ -120,8 +154,8 @@ def main(filename):
 
         print("Input parsed!")
 
-    print("Solving...")
-    output = solve(all_books, libraries, num_of_days)
+    print("Solving EPIC STYLE...")
+    output = solve_3(all_books, libraries, num_of_days)
     num_of_libraries_signed_up = len(output)
     print("Solved!")
 
