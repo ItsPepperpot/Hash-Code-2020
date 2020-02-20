@@ -33,21 +33,20 @@ def solve(books, libraries, days):
     # In each list, store the library followed by ids of books
     output = []
     book_frequency_dict = Counter(books)
+    processed_lib_ids = []
 
     for i in range(len(libraries)):
         looking_for_laziest_library = not looking_for_laziest_library
 
         if looking_for_laziest_library:
-            laziest_library = libraries[0]
+            laziest_library = Library(-1, 0, 0, 0)
             for libr in libraries:
-                if libr.id in [x[0].id for x in output]:
-                    continue
-
-                if libr.sign_up_time > laziest_library.sign_up_time:
-                    laziest_library = libr
-                elif libr.sign_up_time == laziest_library.sign_up_time:
-                    if libr.score > laziest_library.score:
+                if libr.id not in processed_lib_ids:
+                    if libr.sign_up_time > laziest_library.sign_up_time:
                         laziest_library = libr
+                    elif libr.sign_up_time == laziest_library.sign_up_time:
+                        if libr.score > laziest_library.score:
+                            laziest_library = libr
 
             output.append([laziest_library])
             # Slam all the books in there, biggest scorer first
@@ -55,23 +54,23 @@ def solve(books, libraries, days):
                 laziest_library.books, key=lambda b: b.score)
 
             output[-1].extend(reversed(books_by_score))
+            processed_lib_ids.append(laziest_library.id)
         else:
-            sweatiest_library = libraries[0]
+            sweatiest_library = Library(-1, 0, 10001, 0)
             for libr in libraries:
-                if libr.id in [x[0].id for x in output]:
-                    continue
-
-                if libr.sign_up_time < sweatiest_library.sign_up_time:
-                    sweatiest_library = libr
-                elif libr.sign_up_time == sweatiest_library.sign_up_time:
-                    if libr.score > sweatiest_library.score:
+                if libr.id not in processed_lib_ids:
+                    if libr.sign_up_time < sweatiest_library.sign_up_time:
                         sweatiest_library = libr
+                    elif libr.sign_up_time == sweatiest_library.sign_up_time:
+                        if libr.score > sweatiest_library.score:
+                            sweatiest_library = libr
 
             output.append([sweatiest_library])
             # Slam all the books in there, biggest scorer first
             books_by_score = sorted(
                 sweatiest_library.books, key=lambda b: b.score)
             output[-1].extend(reversed(books_by_score))
+            processed_lib_ids.append(sweatiest_library.id)
 
     return output
 
@@ -120,7 +119,7 @@ def main(filename):
             libraries[i].calculate_score()
 
         print("Input parsed!")
-    # TODO SOLVE ME PLEASE
+
     print("Solving...")
     output = solve(all_books, libraries, num_of_days)
     num_of_libraries_signed_up = len(output)
